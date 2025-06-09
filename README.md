@@ -12,10 +12,6 @@ This notebook demonstrates the use of two crucial geospatial Python libraries: *
 - Explain the role of Folium in creating interactive web maps.
 - Show how to visualize the acquired street networks and POIs on a Folium map.
 
-This exercise supports the learning goals of:
-
-- **Amna Azim** – proficiency with `osmnx` and `networkx`.
-- **Annabelle Melanie Kiefer** – proficiency in `folium` for map visualizations.
 
 ---
 
@@ -44,3 +40,14 @@ Install the necessary libraries using `pip`:
 
 ```bash
 pip install osmnx folium matplotlib
+
+
+
+🗺️ Area of Interest
+We'll focus on Salzburg, Austria, a city relevant to our final project and rich in OpenStreetMap data.
+
+
+
+Part 1: Data Acquisition with OSMnx
+
+
