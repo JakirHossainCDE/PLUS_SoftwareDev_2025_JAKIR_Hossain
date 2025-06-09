@@ -1,0 +1,15 @@
+name: a3_geospatial_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - osmnx
+  - folium
+  - matplotlib
+  - geopandas
+  - networkx
+  - pandas
+  - shapely
+  - ipykernel # For Jupyter Notebook integration
+  - jupyterlab # Or jupyter notebook if you prefer
