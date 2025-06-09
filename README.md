@@ -200,9 +200,9 @@ print("Map created with street network and categorized POIs. Displaying map...")
 # --- 4. Display the map ---
 # In a Jupyter environment, simply calling the map object will display it inline.
 m
-
 ```
-## ✅ Conclusion
+
+### ✅ Conclusion
 #This notebook successfully demonstrates the fundamental steps for data acquisition and visualization using OSMnx and Folium, which are critical components of our "FindMyRoute" final project.
 
 We used OSMnx to efficiently download the street network and various Points of Interest (POIs) for Salzburg, Austria, directly from OpenStreetMap data. 
