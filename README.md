@@ -99,4 +99,106 @@ print("\n--- OSMnx Data Acquisition Complete ---")
 
 ```
 
+# Part 2: Visualization with Folium
+Folium is a powerful Python library that enables the creation of interactive Leaflet maps. This capability is crucial for "FindMyRoute" as it allows us to visually present the optimized routes, selected attractions, and relevant Points of Interest to the user in an engaging and easily understandable format.
 
+```bash
+import folium
+from folium.plugins import MarkerCluster # Useful for grouping many markers
+
+print("\n--- Starting Folium Visualization ---")
+
+# --- 1. Create a base Folium map centered on the location ---
+# We calculate the centroid of the street network graph by averaging the x and y coordinates
+# of all its nodes. This provides a good central point for the map.
+# OSMnx graph nodes have 'x' (longitude) and 'y' (latitude) attributes.
+node_xs = [data['x'] for node, data in G.nodes(data=True)]
+node_ys = [data['y'] for node, data in G.nodes(data=True)]
+latitude = sum(node_ys) / len(node_ys)
+longitude = sum(node_xs) / len(node_xs)
+
+m = folium.Map(location=[latitude, longitude], zoom_start=14)
+print(f"Created Folium map centered at: {latitude:.4f}, {longitude:.4f}")
+
+# --- 2. Add the street network to the map ---
+# Convert the graph to a GeoDataFrame of edges and then to GeoJSON.
+# This is a robust way to plot the network on Folium, bypassing specific OSMnx plotting functions
+# that might change between library versions.
+# Relevant documentation for graph to GeoDataFrame: https://osmnx.readthedocs.io/en/stable/user_guide.html#convert-graphs-to-geodataframes
+print("Adding street network to map by converting to GeoJSON...")
+edges_gdf = ox.graph_to_gdfs(G, nodes=False) # Get edges as GeoDataFrame
+folium.GeoJson(
+    edges_gdf.__geo_interface__, # Convert GeoDataFrame to GeoJSON dictionary
+    name="Street Network",
+    style_function=lambda x: {
+        "color": "#8b0000",
+        "weight": 2,
+        "opacity": 0.7,
+    },
+).add_to(m)
+
+# --- 3. Add POIs to the map ---
+# To manage potentially many POIs, we'll use `MarkerCluster` from Folium plugins.
+# This groups nearby markers, making the map less cluttered at lower zoom levels.
+# We'll create separate clusters for different POI types for better organization and toggleability.
+print("Adding POIs to map...")
+marker_cluster_attractions = MarkerCluster(name="Attractions").add_to(m)
+marker_cluster_cafes = MarkerCluster(name="Cafes").add_to(m)
+marker_cluster_parks = MarkerCluster(name="Parks").add_to(m)
+# For any other POIs that don't fit specific categories
+marker_cluster_other = MarkerCluster(name="Other POIs").add_to(m)
+
+# Iterate through each row in the POIs GeoDataFrame
+for idx, row in pois.iterrows():
+    # Extract coordinates. Geometry can be Point, Polygon, etc. For Polygons, we use the centroid.
+    if row['geometry'] and row['geometry'].geom_type in ['Point', 'Polygon', 'MultiPolygon']:
+        try:
+            lon, lat = (row['geometry'].centroid.x, row['geometry'].centroid.y) if row['geometry'].geom_type != 'Point' else (row['geometry'].x, row['geometry'].y)
+
+            # Construct a popup message for the marker, including the name and type
+            popup_text = f"<b>{row.get('name', 'N/A')}</b><br>"
+            if row.get('tourism'): popup_text += f"Type: {row['tourism']}<br>"
+            if row.get('amenity'): popup_text += f"Type: {row['amenity']}<br>"
+            if row.get('leisure'): popup_text += f"Type: {row['leisure']}<br>"
+            if row.get('shop'): popup_text += f"Type: {row['shop']}<br>" # Added for more general POIs
+
+            # Assign different icon colors and names based on the POI type
+            # Font Awesome icons (prefix='fa') are commonly used with Folium.
+            icon_color = "darkblue"
+            icon_name = "map-marker" # Default icon
+            add_to_cluster = marker_cluster_other # Default cluster
+
+            if 'tourism' in row and row['tourism'] == 'attraction':
+                icon_color = "red"
+                icon_name = "star"
+                add_to_cluster = marker_cluster_attractions
+            elif 'amenity' in row and row['amenity'] == 'cafe':
+                icon_color = "green"
+                icon_name = "coffee"
+                add_to_cluster = marker_cluster_cafes
+            elif 'leisure' in row and row['leisure'] == 'park':
+                icon_color = "lightgreen"
+                icon_name = "tree"
+                add_to_cluster = marker_cluster_parks
+
+            # Create a Folium Marker and add it to the appropriate cluster
+            folium.Marker(
+                location=[lat, lon],
+                popup=folium.Popup(popup_text, max_width=300), # Max width helps with long text
+                icon=folium.Icon(color=icon_color, icon=icon_name, prefix='fa')
+            ).add_to(add_to_cluster)
+        except Exception as e:
+            # Catch potential errors if a geometry is malformed or unexpected
+            print(f"Skipping POI '{row.get('name', 'Unnamed')}' due to geometry error: {e}")
+            continue
+
+# Add a layer control to the map, allowing users to toggle different POI clusters and base layers
+folium.LayerControl().add_to(m)
+
+print("Map created with street network and categorized POIs. Displaying map...")
+
+# --- 4. Display the map ---
+# In a Jupyter environment, simply calling the map object will display it inline.
+m
+
+```
