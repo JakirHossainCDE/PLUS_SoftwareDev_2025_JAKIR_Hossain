@@ -40,10 +40,10 @@ Install the necessary libraries using `pip`:
 
 ```bash
 pip install osmnx folium matplotlib
+```
 
 
-
-🗺️ Area of Interest
+## 🗺️ Area of Interest
 We'll focus on Salzburg, Austria, a city relevant to our final project and rich in OpenStreetMap data.
 
 
