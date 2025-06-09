@@ -202,3 +202,11 @@ print("Map created with street network and categorized POIs. Displaying map...")
 m
 
 ```
+## ✅ Conclusion
+#This notebook successfully demonstrates the fundamental steps for data acquisition and visualization using OSMnx and Folium, which are critical components of our "FindMyRoute" final project.
+
+We used OSMnx to efficiently download the street network and various Points of Interest (POIs) for Salzburg, Austria, directly from OpenStreetMap data. 
+
+We then leveraged Folium to create an interactive map, displaying both the street network and the categorized POIs. This directly supports Annabelle's responsibility for designing and implementing map visualizations for our optimized routes.
+
+By integrating these libraries, "FindMyRoute" will be able to perform robust geospatial analysis and provide a user-friendly, interactive mapping experience. This assignment has provided valuable hands-on experience with tools that will be at the core of our project's success.
